@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { Question } from "@phosphor-icons/react";
 
 type ProgressData = {
@@ -8,7 +8,7 @@ type ProgressData = {
 };
 
 function Contest() {
-  const [progress, setProgress] = useState<ProgressData | null>(null);
+  const [progress] = useState<ProgressData | null>(null);
 
   const [emailRef, passwordRef] = [
     useRef<HTMLInputElement>(null),
