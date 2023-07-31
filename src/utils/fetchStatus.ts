@@ -9,7 +9,7 @@ type TaskStatus = {
 };
 
 async function fetchStatus(taskId: string): Promise<TaskStatus> {
-  const { data } = await axios.get(`http://localhost/status/${taskId}`);
+  const { data } = await axios.get(`http://localhost:8080/status/${taskId}`);
   return data;
 }
 

@@ -3,7 +3,6 @@ import { TitleContext } from "../contexts/titleContext";
 import { Link } from "react-router-dom";
 import mirumLogo from "../assets/logo.svg";
 
-// Receber title de um contexto
 function Header() {
   const { title } = React.useContext(TitleContext);
 
