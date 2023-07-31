@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useState, useEffect } from "react";
 
 type TitleContextType = {
   title: string;
@@ -8,7 +8,11 @@ type TitleContextType = {
 const TitleContext = createContext<TitleContextType>({} as TitleContextType);
 
 function TitleProvider({ children }: { children: React.ReactNode }) {
-  const [title, setTitle] = useState<string>("");
+  const [title, setTitle] = useState("");
+
+  useEffect(() => {
+    console.log(title)
+  }, [title]);
 
   return (
     <TitleContext.Provider value={{ title, setTitle }}>

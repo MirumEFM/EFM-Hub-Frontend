@@ -1,95 +1,93 @@
-import React, { useRef, useState } from "react";
-import { Question } from "@phosphor-icons/react";
+import React from "react";
+import axios from "axios";
 
-type ProgressData = {
-  progress: number; // percantage
-  message: string;
-  error: boolean;
-};
+import fetchStatus from "../utils/fetchStatus";
+
+import { TitleContext } from "../contexts/titleContext";
+import Input from "../components/Input";
 
 function Contest() {
-  const [progress] = useState<ProgressData | null>(null);
+  const {setTitle} = React.useContext(TitleContext);
+  const [task, setTask] = React.useState<Task | null>(null);
 
-  const [emailRef, passwordRef] = [
-    useRef<HTMLInputElement>(null),
-    useRef<HTMLInputElement>(null),
+  const [emailRef, passwordRef, accountIdRef] = [
+    React.useRef<HTMLInputElement>(null),
+    React.useRef<HTMLInputElement>(null),
+    React.useRef<HTMLInputElement>(null),
   ];
+  
+  React.useEffect(() => {
+    setTitle("Contestar produtos");
+  }, [])
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const [email, password] = [
+    const [email, password, accountId] = [
       emailRef.current?.value,
       passwordRef.current?.value,
+      accountIdRef.current?.value,
     ];
-    if (!email || !password) {
+    if (!email || !password || !accountId) {
       alert("Preencha todos os campos");
       return;
+    }
+
+    try {
+      const { data } = await axios.post("http://localhost:8080/subaccounts", {
+        accountId,
+        credentials: { email, password },
+      }); // Etapa 1, Login e subcontas
+      const { taskId } = data;
+
+      const properties = await fetchStatus(taskId);
+
+      setTask({
+        id: taskId,
+        properties,
+      });
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message);
     }
   }
 
   return (
-    <div>
+    <div className="flex w-full justify-center">
       <form
-        className="flex flex-col justify-start items-center"
+        className="flex flex-col gap-2 items-center justify-center w-4/5 sm:w-1/3 "
         onSubmit={handleSubmit}
       >
-        <div className="input-group flex flex-col mb-4 ">
-          <label
-            className="flex items-center text-lg text-gray-700 mb-2"
-            htmlFor="email"
-          >
-            Email
-            <span title="Email Google Merchant">
-              <Question size={20} />
-            </span>
-          </label>
-          <input
-            className="w-full py-2 px-1 outline outline-1 outline-black focus:outline-blue-400 bg-white "
-            name="email"
-            type="text"
-            placeholder="joao@mirumagency.com"
-            ref={emailRef}
-          ></input>
-        </div>
-        <div className="input-group flex flex-col mb-4 ">
-          <label
-            className="flex items-center text-lg text-gray-700 mb-2"
-            htmlFor="password"
-          >
-            Senha
-            <span title="Senha Google Merchant">
-              <Question size={20} />
-            </span>
-          </label>
-          <input
-            className="w-full py-2 px-1 outline outline-1 outline-black focus:outline-blue-400 bg-white "
-            name="password"
-            type="password"
-            placeholder="********"
-            ref={passwordRef}
-          ></input>
-        </div>
-        <div className="flex justify-center items-center w-full">
-          <button
-            className="btn py-2 px-4 border border-gray-700 bg-yellow-300 text-gray-700 hover:text-white hover:bg-gray-700 hover:shadow-md transition-all duration-125 ease-in-out"
-            type="submit"
-          >
-            Enviar
-          </button>
-        </div>
+        <Input
+          title="Email"
+          tooltipInfo="Email da conta do Google Merchant"
+          placeholder="joao@mirumagency.com"
+          label="email"
+          type="email"
+          ref={emailRef}
+        />
+        <Input
+          title="Senha"
+          tooltipInfo="Senha da conta do Google Merchant"
+          placeholder="******"
+          label="password"
+          type="password"
+          ref={passwordRef}
+        />
+        <Input
+          title="Id da conta"
+          tooltipInfo="Id da conta do Google Merchant"
+          placeholder="123123123"
+          label="accountId"
+          type="text"
+          ref={accountIdRef}
+        />
+        <button
+          className="py-2 px-4 border border-gray-700  bg-transparent text-gray-700 hover:text-white hover:bg-gray-700 hover:shadow-md transition-all duration-125 ease-in-out"
+          type="submit"
+        >
+          Enviar
+        </button>
       </form>
-
-      {progress && (
-        <div className="flex flex-col justify-center items-center">
-          <p>{progress.message}</p>
-          <div className="relative w-full h-4 bg-gray-200 rounded-full">
-            <div
-              className="absolute top-0 left-0 h-full bg-green-400 rounded-full"
-              style={{ width: `${progress.progress}%` }}
-            ></div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

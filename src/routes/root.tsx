@@ -1,6 +1,7 @@
 import { useContext, useEffect } from "react";
-import Card from "../components/Card";
+
 import { TitleContext } from "../contexts/titleContext";
+import Card from "../components/Card";
 
 const cards = [
   {
@@ -22,11 +23,11 @@ function Root() {
 
   useEffect(() => {
     setTitle("Scripts");
-  });
+  }, []);
 
   return (
-    <div className="">
-      <ul className="card-group flex flex-wrap flex-col justify-center m-0 p-0">
+    <div className="flex w-full justify-center">
+      <ul className="flex flex-col sm:flex-row gap-4">
         {cards.map((cardInfo) => (
           <Card {...cardInfo} />
         ))}

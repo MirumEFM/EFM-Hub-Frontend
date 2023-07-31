@@ -1,24 +1,17 @@
-import { useEffect, useState } from "react";
+import React from "react";
+import axios from "axios";
+
+import { TitleContext } from "../contexts/titleContext";
+
+import fetchStatus from "../utils/fetchStatus";
+
 import Progress from "../components/Progress";
-import api from "../lib/api";
-
-type TaskStatus = {
-  createdAt: Date;
-  status: "pending" | "error" | "finished";
-  message: string;
-  progress: number;
-  data: any;
-};
-
-type Task = {
-  id: string;
-  properties: TaskStatus;
-};
 
 function Ranking() {
-  const [task, setTask] = useState<Task | null>(null);
-  const [file, setFile] = useState<File | null>(null);
-  const [backupFile, setBackupFile] = useState<Blob | null>(null);
+  const { setTitle } = React.useContext(TitleContext);
+  const [task, setTask] = React.useState<Task | null>(null);
+  const [file, setFile] = React.useState<File | null>(null);
+  const [backupFile, setBackupFile] = React.useState<Blob | null>(null);
 
   function csvToJSON(csv: string) {
     const lines = csv.split("\n");
@@ -58,31 +51,21 @@ function Ranking() {
       if (!e.target) return;
       const csv = e.target.result as string;
       const json = csvToJSON(csv);
-      const { data } = await api.post("/ranking", json);
-      fetchStatus(data.taskId);
+      const { data } = await axios.post("/ranking", json);
+      const { taskId } = data;
+      const properties = await fetchStatus(taskId);
+      setTask({
+        id: taskId,
+        properties,
+      });
     };
   }
 
-  async function fetchStatus(taskId: string) {
-    try {
-      const { data } = await api.get(`/status/${taskId}`);
-      setTask((prev) => {
-        if (!prev) return null;
-        return {
-          ...prev,
-          properties: data,
-        };
-      });
-    } catch (err: any) {
-      console.log(err);
-    }
-  }
-
-  useEffect(() => {
+  React.useEffect(() => {
     if (task?.properties.status === "pending") {
       setTimeout(async () => {
-        await fetchStatus(task.id);
-        const newBackupFile = jsonToCSV(task.properties.data);
+        const properties = await fetchStatus(task.id);
+        const newBackupFile = jsonToCSV(properties.data);
         setBackupFile(new Blob([newBackupFile], { type: "text/csv" }));
       }, 1000);
     }
@@ -91,6 +74,10 @@ function Ranking() {
       setTask(null);
     };
   }, [task]);
+
+  React.useEffect(() => {
+    setTitle("Ranqueamento de produtos");
+  }, []);
 
   return (
     <div>

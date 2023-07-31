@@ -1,37 +1,30 @@
+import { Question } from "@phosphor-icons/react";
 import React from "react";
 
-import { Question } from "@phosphor-icons/react";
-
-type InputProps = {
-  label: string;
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   title: string;
-  placeholder?: string;
-  type?: string;
-};
+  label: string;
+  tooltipInfo: string;
+}
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ label, title, type, placeholder }: InputProps, ref) => {
-    return (
-      <div className="input-group flex flex-col mb-4 ">
-        <label
-          className="flex items-center text-lg text-gray-700 mb-2"
-          htmlFor={label}
-        >
-          {label}
-          <span title={title}>
-            <Question size={20} />
-          </span>
-        </label>
-        <input
-          className="w-full py-2 px-1 outline outline-1 outline-black "
-          name={label}
-          type={type || "text"}
-          placeholder={placeholder}
-          ref={ref}
-        ></input>
+const Input = React.forwardRef(function Input(props: InputProps, ref) {
+  return (
+    <div className="w-full">
+      <div className="flex w-full items-center gap-1">
+        <label htmlFor={props.label}>{props.title}</label>
+        <span title={props.tooltipInfo}>
+          <Question />
+        </span>
       </div>
-    );
-  }
-);
+      <input
+        className="p-2 outline outline-1 focus:outline-2 w-full "
+        name={props.label}
+        type={props.type}
+        placeholder={props.placeholder}
+        ref={ref as React.ForwardedRef<HTMLInputElement>}
+      />
+    </div>
+  );
+});
 
 export default Input;
