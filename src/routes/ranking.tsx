@@ -9,6 +9,7 @@ import Progress from "../components/Progress";
 
 function Ranking() {
   const { setTitle } = React.useContext(TitleContext);
+  const [fetchingTask, setFetchingTask] = React.useState(false);
   const [task, setTask] = React.useState<Task | null>(null);
   const [file, setFile] = React.useState<File | null>(null);
   const [backupFile, setBackupFile] = React.useState<Blob | null>(null);
@@ -51,7 +52,10 @@ function Ranking() {
       if (!e.target) return;
       const csv = e.target.result as string;
       const json = csvToJSON(csv);
-      const { data } = await axios.post("/ranking", json);
+      console.log(json);
+      const { data } = await axios.post("http://localhost:8080/ranking", {
+        products: json,
+      });
       const { taskId } = data;
       const properties = await fetchStatus(taskId);
       setTask({
@@ -62,18 +66,24 @@ function Ranking() {
   }
 
   React.useEffect(() => {
-    if (task?.properties.status === "pending") {
-      setTimeout(async () => {
+    if (!task) return;
+    let interval: number | undefined;
+    if (task.properties.status === "pending" && !fetchingTask) {
+      interval = setInterval(async () => {
         const properties = await fetchStatus(task.id);
+        if (!properties.data) return;
         const newBackupFile = jsonToCSV(properties.data);
+        setTask(() => ({ id: task.id, properties }));
         setBackupFile(new Blob([newBackupFile], { type: "text/csv" }));
-      }, 1000);
-    }
 
-    return () => {
-      setTask(null);
-    };
-  }, [task]);
+        if (properties.status !== "pending") {
+          setFetchingTask(false);
+        }
+      }, 500);
+    } else {
+      if (interval) clearInterval(interval);
+    }
+  }, [task, fetchingTask]);
 
   React.useEffect(() => {
     setTitle("Ranqueamento de produtos");
@@ -104,7 +114,7 @@ function Ranking() {
             download="ranking.csv"
             className="btn py-2 px-4 border border-gray-700 bg-yellow-300 text-gray-700 hover:text-white hover:bg-gray-700 hover:shadow-md transition-all duration-125 ease-in-out"
           >
-            Baixar arquivo de backup
+            Baixar {task?.properties.status !== "finished" ? "Backup" : "Arquivo" }
           </a>
         )}
         {task?.properties && (
