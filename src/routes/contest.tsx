@@ -32,6 +32,27 @@ function Contest() {
     else setCurrentStep(ns);
   };
 
+  function csvToJSON(csv: string) {
+    const lines = csv.split("\n");
+
+    const result = [];
+
+    const headers = lines[0].split(",");
+
+    for (let i = 1; i < lines.length; i++) {
+      const obj: any = {};
+      const currentline = lines[i].split(",");
+
+      for (let j = 0; j < headers.length; j++) {
+        obj[headers[j]] = currentline[j];
+      }
+
+      result.push(obj);
+    }
+
+    return result;
+  }
+
   React.useEffect(() => {
     if (!task) return;
     let interval: number | undefined;
@@ -167,6 +188,23 @@ function Contest() {
     function handleSubmit(e: React.FormEvent) {
       e.preventDefault();
       if (!files) return alert("Selecione arquivos para enviar.");
+      const items = [];
+      for (const file of files) {
+        const reader = new FileReader();
+        reader.readAsText(file);
+        reader.onload = async (e) => {
+          if (!e.target) return;
+          const csv = e.target.result as string;
+          const issues = csvToJSON(csv);
+          for (const item of issues) {
+            items.push({
+              subAccountId: file.name.split("_")[2],
+              sku: item["Item ID"],
+              issue: item["Issue title"],
+            });
+          }
+        };
+      }
     }
 
     return (
@@ -248,7 +286,7 @@ function Contest() {
                     key={`file-${i}`}
                   >
                     <FileCsv size={32} />
-                    <p>{`${el.split("_")[2]}.csv`}</p>
+                    <p>{`${el.split("_")[2]}'.csv'`}</p>
                   </div>
                 ))}
               </div>
