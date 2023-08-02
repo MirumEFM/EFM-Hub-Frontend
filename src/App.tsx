@@ -8,7 +8,7 @@ function App() {
   return (
     <TitleProvider>
       <Header />
-      <main className="h-screen p-8 min-h-screen-270px box-border">
+      <main className="h-screen min-h-screen-270px box-border">
         <Outlet />
       </main>
       <Footer />

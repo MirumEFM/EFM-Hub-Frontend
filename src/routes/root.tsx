@@ -5,16 +5,16 @@ import Card from "../components/Card";
 
 const cards = [
   {
-    name: "Contestar produtos [🚧 W.I.P 🛠️]",
+    name: "Contestar produtos",
     path: "/contest",
     description:
-      "Script que automatiza a contestação de produtos de um cliente no Google Merchant. [80% Concluído]",
+      "Script que automatiza a contestação de produtos de um cliente no Google Merchant.",
   },
   {
     name: "Ranqueamento no Shopping",
     path: "/ranking",
     description:
-      "Recebe arquivo CSV com produtos e retorna o posicionamento deles no Google Shopping. [100% Concluído]",
+      "Recebe arquivo CSV com produtos e retorna o posicionamento deles no Google Shopping.",
   },
 ];
 

@@ -69,17 +69,23 @@ function Ranking() {
     if (!task) return;
     let interval: number | undefined;
     if (task.properties.status === "pending" && !fetchingTask) {
+      setFetchingTask(true);
       interval = setInterval(async () => {
-        const properties = await fetchStatus(task.id);
-        if (!properties.data) return;
-        const newBackupFile = jsonToCSV(properties.data);
-        setTask(() => ({ id: task.id, properties }));
-        setBackupFile(new Blob([newBackupFile], { type: "text/csv" }));
-
-        if (properties.status !== "pending") {
+        try {
+          console.log("fetching status")
+          const properties = await fetchStatus(task.id);
+          if (!properties.data) return;
+          const newBackupFile = jsonToCSV(properties.data);
+          setTask(() => ({ id: task.id, properties }));
+          setBackupFile(new Blob([newBackupFile], { type: "text/csv" }));
+          if (properties.status !== "pending") {
+            setFetchingTask(false);
+          }
+        } catch (err) {
+          console.log(err);
           setFetchingTask(false);
         }
-      }, 500);
+      }, 2000);
     } else {
       if (interval) clearInterval(interval);
     }
@@ -114,7 +120,8 @@ function Ranking() {
             download="ranking.csv"
             className="btn py-2 px-4 border border-gray-700 bg-yellow-300 text-gray-700 hover:text-white hover:bg-gray-700 hover:shadow-md transition-all duration-125 ease-in-out"
           >
-            Baixar {task?.properties.status !== "finished" ? "Backup" : "Arquivo" }
+            Baixar{" "}
+            {task?.properties.status !== "finished" ? "Backup" : "Arquivo"}
           </a>
         )}
         {task?.properties && (
