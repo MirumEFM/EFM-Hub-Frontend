@@ -210,6 +210,11 @@ function Contest() {
 
     async function handleSubmit(e: React.FormEvent) {
       e.preventDefault();
+      const [email, password] = [
+        emailRef.current?.value,
+        passwordRef.current?.value,
+      ];
+      if (!email || password) alert("Email e senha não definidos.");
       if (!files) return alert("Selecione arquivos para enviar.");
       const items: Issue[] = [];
       for (const file of files) {
@@ -220,11 +225,14 @@ function Contest() {
         (el) => el.issue && el.sku && el.subAccountId
       );
       try {
-        console.log(filteredItems)
-        // const { data } = await axios.post("http://localhost:8080/contest", {
-        //   issues: filteredItems,
-        // });
-        // console.log(data);
+        console.log(filteredItems);
+        const { data } = await axios.post("http://localhost:8080/contest", {
+          credentials: {
+            email,
+            password,
+          },
+          issues: filteredItems,
+        });
       } catch (err: any) {
         console.log(err);
       }
@@ -331,16 +339,7 @@ function Contest() {
       <h3 className="flex w-full justify-center font-semibold text-xl">
         Etapa {currentStep + 1} de {Steps.length}
       </h3>
-
       <div className="flex justify-center w-full">{Steps[currentStep]}</div>
-      <div className="flex justify-center">
-        <button
-          className="bg-slate-600 border text-black p-2 border-black"
-          onClick={gotoNextStep}
-        >
-          Cycle through steps
-        </button>
-      </div>
     </div>
   );
 }
