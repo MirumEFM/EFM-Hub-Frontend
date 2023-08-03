@@ -96,8 +96,8 @@ function Ranking() {
   }, []);
 
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
+    <div className="p-4">
+      <form className="" onSubmit={handleSubmit}>
         <input
           type="file"
           accept=".csv"
