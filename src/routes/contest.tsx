@@ -6,7 +6,7 @@ import fetchStatus from "../utils/fetchStatus";
 import { TitleContext } from "../contexts/titleContext";
 import Input from "../components/Input";
 import Progress from "../components/Progress";
-import { CheckFat, FileCsv } from "@phosphor-icons/react";
+import { FileCsv } from "@phosphor-icons/react";
 import { Button } from "../components/Button";
 
 function Contest() {
@@ -64,7 +64,6 @@ function Contest() {
           const properties = await fetchStatus(task.id);
           setTask(() => ({ id: task.id, properties }));
           if (properties.status !== "pending") {
-            setFetchingTask(false);
             gotoNextStep();
           }
         } catch (err) {
@@ -185,14 +184,14 @@ function Contest() {
       }
     }
 
-    function handleSubmit(e: React.FormEvent) {
-      e.preventDefault();
-      if (!files) return alert("Selecione arquivos para enviar.");
-      const items = [];
-      for (const file of files) {
+    type Issue = { subAccountId: string; sku: string; issue: string };
+
+    async function getFileIssues(file: File): Promise<Issue[]> {
+      const items: Issue[] = [];
+      await new Promise<void>((resolve) => {
         const reader = new FileReader();
         reader.readAsText(file);
-        reader.onload = async (e) => {
+        reader.onload = (e) => {
           if (!e.target) return;
           const csv = e.target.result as string;
           const issues = csvToJSON(csv);
@@ -203,7 +202,31 @@ function Contest() {
               issue: item["Issue title"],
             });
           }
+          resolve();
         };
+      });
+      return items;
+    }
+
+    async function handleSubmit(e: React.FormEvent) {
+      e.preventDefault();
+      if (!files) return alert("Selecione arquivos para enviar.");
+      const items: Issue[] = [];
+      for (const file of files) {
+        const issues = await getFileIssues(file);
+        items.push(...issues);
+      }
+      const filteredItems = items.filter(
+        (el) => el.issue && el.sku && el.subAccountId
+      );
+      try {
+        console.log(filteredItems)
+        // const { data } = await axios.post("http://localhost:8080/contest", {
+        //   issues: filteredItems,
+        // });
+        // console.log(data);
+      } catch (err: any) {
+        console.log(err);
       }
     }
 
@@ -274,11 +297,11 @@ function Contest() {
           />
           <div className="flex flex-col gap-1 mb-4 ">
             <p className="text-lg">
-              {fileNames.length > 1
+              {fileNames.length > 0
                 ? "Arquivo(s) selecionado(s):"
                 : "Nenhum arquivo selecionado"}
             </p>
-            {fileNames.length > 1 && (
+            {fileNames.length > 0 && (
               <div className="grid grid-cols-3 gap-2  bg-amber-400 p-2 rounded-md overflow-y-scroll overflow-x-hidden h-1/2">
                 {fileNames.map((el, i) => (
                   <div
@@ -286,7 +309,7 @@ function Contest() {
                     key={`file-${i}`}
                   >
                     <FileCsv size={32} />
-                    <p>{`${el.split("_")[2]}'.csv'`}</p>
+                    <p>{`${el.split("_")[2]}.csv`}</p>
                   </div>
                 ))}
               </div>
