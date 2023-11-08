@@ -7,14 +7,12 @@ const cards = [
   {
     name: "Contestar produtos",
     path: "/contest",
-    description:
-      "Script que automatiza a contestação de produtos de um cliente no Google Merchant.",
+    description: "Script que automatiza a contestação de produtos de um cliente no Google Merchant.",
   },
   {
     name: "Ranqueamento no Shopping",
     path: "/ranking",
-    description:
-      "Recebe arquivo CSV com produtos e retorna o posicionamento deles no Google Shopping.",
+    description: "Recebe arquivo CSV com produtos e retorna o posicionamento deles no Google Shopping.",
   },
 ];
 
@@ -26,9 +24,9 @@ function Root() {
   }, []);
 
   return (
-    <div className="flex w-full justify-center">
-      <ul className="flex flex-col sm:flex-row gap-4">
-        {cards.map((cardInfo) => (
+    <div className="flex w-full h-full justify-center items-center">
+      <ul className="flex flex-col sm:flex-col gap-4">
+        {cards.map(cardInfo => (
           <Card {...cardInfo} />
         ))}
       </ul>

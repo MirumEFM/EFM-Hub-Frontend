@@ -23,10 +23,10 @@ function Ranking() {
 
     for (let i = 1; i < lines.length; i++) {
       const obj: any = {};
-      const currentline = lines[i].split(",");
+      const currentLine = lines[i].split(",");
 
       for (let j = 0; j < headers.length; j++) {
-        obj[headers[j]] = currentline[j];
+        obj[headers[j]] = currentLine[j];
       }
 
       result.push(obj);
@@ -48,7 +48,7 @@ function Ranking() {
     if (!file) return;
     const reader = new FileReader();
     reader.readAsText(file);
-    reader.onload = async (e) => {
+    reader.onload = async e => {
       if (!e.target) return;
       const csv = e.target.result as string;
       const json = csvToJSON(csv);
@@ -72,7 +72,7 @@ function Ranking() {
       setFetchingTask(true);
       interval = setInterval(async () => {
         try {
-          console.log("fetching status")
+          console.log("fetching status");
           const properties = await fetchStatus(task.id);
           if (!properties.data) return;
           const newBackupFile = jsonToCSV(properties.data);
@@ -101,7 +101,7 @@ function Ranking() {
         <input
           type="file"
           accept=".csv"
-          onChange={(e) => {
+          onChange={e => {
             if (!e.target.files) return;
             setFile(e.target.files[0]);
           }}
@@ -120,15 +120,10 @@ function Ranking() {
             download="ranking.csv"
             className="btn py-2 px-4 border border-gray-700 bg-yellow-300 text-gray-700 hover:text-white hover:bg-gray-700 hover:shadow-md transition-all duration-125 ease-in-out"
           >
-            Baixar{" "}
-            {task?.properties.status !== "finished" ? "Backup" : "Arquivo"}
+            Baixar {task?.properties.status !== "finished" ? "Backup" : "Arquivo"}
           </a>
         )}
-        {task?.properties && (
-          <div className="my-4">
-            {task.properties.progress && <Progress {...task.properties} />}
-          </div>
-        )}
+        {task?.properties && <div className="my-4">{task.properties.progress && <Progress {...task.properties} />}</div>}
       </form>
     </div>
   );
